@@ -925,6 +925,37 @@
             </div>
         </div>
     </div>
+    </div>
+                    </div>
+                </div>
+
+                <!-- Training Tab -->
+                <div id="training" class="tab-pane">
+                    <h2>🎓 Training Materials & Presentation</h2>
+                    <div class="vba-tools-container">
+                        <h3 style="margin-bottom: 20px;">📊 Skin Care Training Document</h3>
+                        <p style="margin-bottom: 20px; opacity: 0.9;">Access training materials and presentation resources</p>
+                        
+                        <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 25px; margin: 20px 0;">
+                            <div style="text-align: center; padding: 40px;">
+                                <div style="font-size: 3rem; margin-bottom: 20px;">📋</div>
+                                <h4>PowerPoint Training Materials</h4>
+                                <p style="margin: 15px 0;">Download the complete training presentation</p>
+                                
+                                <div style="margin-top: 30px;">
+                                    <a href="YOUR_POWERPOINT_FILE.pptx" 
+                                       style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 15px 30px; border-radius: 25px; text-decoration: none; font-weight: 600; display: inline-block; margin: 10px;"
+                                       download>
+                                        📥 Download Training Materials
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Global variables for dynamic data management
@@ -1125,6 +1156,13 @@
                 btn.addEventListener('click', () => showTab(sheet.id));
                 tabNavigation.appendChild(btn);
             });
+
+            // Training tab
+            const trainingBtn = document.createElement('button');
+            trainingBtn.className = 'tab-button';
+            trainingBtn.textContent = '🎓 Training';
+            trainingBtn.addEventListener('click', () => showTab('training'));
+            tabNavigation.appendChild(trainingBtn);
             
             // VBA Tools tab
             const vbaBtn = document.createElement('button');
@@ -1732,3 +1770,4 @@
 </body>
 
 </html>
+
