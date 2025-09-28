@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Skin Care Product Classification Dashboard</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="skincare-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="2" fill="%23667eea" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23skincare-pattern)"/></svg>');
+            animation: float 20s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .professional-icons {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .icon-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .icon-item .emoji {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .icon-item .label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tab-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-navigation {
+            display: flex;
+            background: #f8f9fa;
+            overflow-x: auto;
+            border-bottom: 2px solid #e9ecef;
+            scrollbar-width: thin;
+            scrollbar-color: #667eea #f1f3f4;
+        }
+
+        .tab-navigation::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .tab-navigation::-webkit-scrollbar-track {
+            background: #f1f3f4;
+        }
+
+        .tab-navigation::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 3px;
+        }
+
+        .tab-button {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6c757d;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .tab-button.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .table-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+        }
+
+        .filter-select {
+            padding: 12px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            outline: none;
+            min-width: 150px;
+        }
+
+        .table-wrapper {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .table-container {
+            overflow: auto;
+            max-height: 600px;
+            border-radius: 15px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            background: white;
+            min-width: 800px;
+        }
+
+        .data-table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .data-table th:last-child {
+            border-right: none;
+        }
+
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f3f4;
+            border-right: 1px solid #f1f3f4;
+            vertical-align: top;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .data-table td:last-child {
+            border-right: none;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: rgba(248, 249, 250, 0.5);
+        }
+
+        .export-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        /* VBA Tools Specific Styles */
+        .vba-tools-container {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            padding: 30px;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .tool-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .tool-form {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-input, .form-textarea {
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .tool-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .tool-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .result-display {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            text-align: center;
+            position: relative;
+        }
+
+        .char-counter {
+            text-align: right;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .tab-button {
+                padding: 12px 18px;
+                font-size: 0.9rem;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input {
+                min-width: 100%;
+            }
+            
+            .data-table {
+                font-size: 0.8rem;
+                min-width: 600px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 8px 6px;
+            }
+
+            .professional-icons {
+                gap: 15px;
+            }
+
+            .icon-item {
+                padding: 10px;
+            }
+
+            .two-column-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f3f4;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #5a67d8;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 25px;
+            z-index: 1000;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: #28a745;
+            color: white;
+        }
+
+        .notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .notification.error {
+            background: #dc3545;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="header-content">
+                <h1>🧴 Dynamic Skin Care Classification Dashboard</h1>
+                <p class="subtitle">Comprehensive Product Data Analysis & VBA Tools Integration</p>
+                <p style="color: #95a5a6; font-size: 0.9rem;">Created by Tamilarasan R • Advanced Data Management System</p>
+                
+                <div class="professional-icons">
+                    <div class="icon-item">
+                        <div class="emoji">🔬</div>
+                        <div class="label">Product Analysis</div>
+                    </div>
+                    <div class="icon-item">
+                        <div class="emoji">📊</div>
+                        <div class="label">Dynamic Data</div>
+                    </div>
+                    <div class="icon-item">
+                        <div class="emoji">🛠️</div>
+                        <div class="label">VBA Tools</div>
+                    </div>
+                    <div class="icon-item">
+                        <div class="emoji">⚡</div>
+                        <div class="label">Auto-Generated</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Stats -->
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-number" id="totalSheets">0</div>
+                <div class="stat-label">Data Sheets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRows">0</div>
+                <div class="stat-label">Total Data Rows</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalColumns">0</div>
+                <div class="stat-label">Total Columns</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="toolsAvailable">2</div>
+                <div class="stat-label">VBA Tools</div>
+            </div>
+        </div>
+
+        <!-- Auto-load Status -->
+        <div class="card" id="loadingCard" style="margin-bottom: 30px; text-align: center;">
+            <div class="card-title">⚡ Auto-Loading Excel Data from GitHub Repository</div>
+            <div id="loadingStatus" class="loading-spinner" style="margin: 20px auto;"></div>
+            <p id="loadingText" style="margin-top: 10px; color: #666; font-size: 0.9rem;">Loading Excel file from repository...</p>
+        </div>
+
+        <!-- Tab Container -->
+        <div class="tab-container">
+            <div class="tab-navigation" id="tabNavigation">
+                <button class="tab-button active" onclick="showTab('welcome')">🏠 Welcome</button>
+                <button class="tab-button" onclick="showTab('vba-tools')">🛠️ VBA Tools</button>
+            </div>
+
+            <div class="tab-content" id="tabContent">
+                <!-- Welcome Tab -->
+                <div id="welcome" class="tab-pane active">
+                    <h2>🏠 Welcome to Dynamic Skin Care Dashboard</h2>
+                    <div class="responsive-grid">
+                        <div class="card">
+                            <div class="card-title">🚀 Getting Started</div>
+                            <p style="color: #666; margin-bottom: 15px;">The dashboard automatically loads Excel data from GitHub repository and generates tabs for each sheet.</p>
+                            <ul style="margin-left: 20px; color: #666;">
+                                <li>✅ Automatically detects all sheets</li>
+                                <li>✅ Creates interactive data tables</li>
+                                <li>✅ Provides search and filter functionality</li>
+                                <li>✅ Includes VBA tools for text processing</li>
+                            </ul>
+                            <div style="margin-top: 20px;">
+                                <button class="vba-tools-button" style="background: #667eea; color: white; border: none; padding: 12px 24px; border-radius: 25px; font-size: 1rem; cursor: pointer; font-weight: 600;">
+                                    🛠️ Try VBA Tools Now
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">🛠️ VBA Tools Available</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.5rem; margin-bottom: 8px;">✂️</div>
+                                    <strong>Value Abbreviator</strong><br><small>Shorten text to 60 chars</small>
+                                </div>
+                                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                                    <div style="font-size: 1.5rem; margin-bottom: 8px;">🏷️</div>
+                                    <strong>Brand Abbreviator</strong><br><small>Format brand names</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">📊 Data Loading Status</div>
+                            <div id="dataLoadStatus" style="color: #666; margin-bottom: 15px;">Loading data from GitHub repository...</div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="quickAccessButtons">
+                                <!-- Quick access buttons will be added here after data loads -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VBA Tools Tab -->
+                <div id="vba-tools" class="tab-pane">
+                    <div class="vba-tools-container">
+                        <div style="text-align: center; margin-bottom: 40px;">
+                            <h2 style="font-size: 2.5rem; margin-bottom: 15px;">🛠️ Advanced Text Processing Suite</h2>
+                            <p style="font-size: 1.2rem; opacity: 0.9;">Professional abbreviation tools with intelligent algorithms</p>
+                            <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap;">
+                                <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 25px; backdrop-filter: blur(10px);">
+                                    <span style="font-size: 1.5rem;">⚡</span> Smart Processing
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 25px; backdrop-filter: blur(10px);">
+                                    <span style="font-size: 1.5rem;">🎯</span> Precision Results
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); padding: 15px 25px; border-radius: 25px; backdrop-filter: blur(10px);">
+                                    <span style="font-size: 1.5rem;">🔧</span> Enterprise Ready
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="responsive-grid">
+                            <div class="tool-section" style="position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 10px; right: 15px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">
+                                    ✂️ SMART ABBREVIATOR
+                                </div>
+                                <h3 style="font-size: 1.8rem; margin-bottom: 15px; color: #fff;">Value Text Processor</h3>
+                                <p style="opacity: 0.9; margin-bottom: 25px; line-height: 1.6;">
+                                    Advanced algorithm that intelligently reduces text length to exactly 60 characters while preserving meaning, context, and readability.
+                                </p>
+                                
+                                <div class="tool-form">
+                                    <div class="form-group">
+                                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                                            <span style="font-size: 1.1rem;">📝</span> Input Text:
+                                        </label>
+                                        <textarea 
+                                            class="form-textarea" 
+                                            id="valueInput" 
+                                            placeholder="Enter your text here (e.g., product descriptions, long names, technical specifications...)"
+                                            style="min-height: 120px; font-size: 1rem; line-height: 1.5;"
+                                        ></textarea>
+                                        <div class="char-counter" id="valueInputCounter" style="display: flex; justify-content: space-between;">
+                                            <span>0 characters</span>
+                                            <span id="valueInputStatus" style="color: #4ade80;">Ready for processing</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; gap: 15px; margin: 20px 0;">
+                                        <button class="tool-btn" onclick="processValueAbbreviation()" style="flex: 1; padding: 15px; font-size: 1.1rem; font-weight: bold;">
+                                            <span style="font-size: 1.2rem;">⚡</span> Process Text
+                                        </button>
+                                        <button class="tool-btn" onclick="clearValueInputs()" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">
+                                            🗑️ Clear
+                                        </button>
+                                        <button class="tool-btn" onclick="copyValueResult()" style="background: rgba(76, 175, 80, 0.3); border-color: rgba(76, 175, 80, 0.5);">
+                                            📋 Copy
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="result-display" id="valueResult">
+                                        <div style="text-align: center; color: #666;">
+                                            <div style="font-size: 2rem; margin-bottom: 10px;">✨</div>
+                                            <div>Processed result will appear here</div>
+                                        </div>
+                                    </div>
+                                    <div class="char-counter" id="valueResultCounter" style="display: flex; justify-content: space-between;">
+                                        <span>0 characters</span>
+                                        <span id="valueCompressionRatio" style="color: #4ade80;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tool-section" style="position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 10px; right: 15px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: bold;">
+                                    🏷️ BRAND FORMATTER
+                                </div>
+                                <h3 style="font-size: 1.8rem; margin-bottom: 15px; color: #fff;">Brand Name Processor</h3>
+                                <p style="opacity: 0.9; margin-bottom: 25px; line-height: 1.6;">
+                                    Professional brand name formatting with intelligent abbreviation and standardized company owner notation.
+                                </p>
+                                
+                                <div class="tool-form">
+                                    <div class="form-group">
+                                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                                            <span style="font-size: 1.1rem;">🎯</span> Brand Name:
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            class="form-input" 
+                                            id="brandInput" 
+                                            placeholder="e.g., ClevaHome Advanced Skincare Solutions"
+                                            style="font-size: 1rem; padding: 15px;"
+                                        >
+                                        <div class="char-counter" id="brandInputCounter">0 characters</div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                                            <span style="font-size: 1.1rem;">🏢</span> Brand Owner/Company:
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            class="form-input" 
+                                            id="brandOwnerInput" 
+                                            placeholder="e.g., Unilever Limited Liability Company"
+                                            style="font-size: 1rem; padding: 15px;"
+                                        >
+                                        <div class="char-counter" id="brandOwnerCounter">0 characters</div>
+                                    </div>
+                                    
+                                    <div style="display: flex; gap: 15px; margin: 20px 0;">
+                                        <button class="tool-btn" onclick="processBrandAbbreviation()" style="flex: 1; padding: 15px; font-size: 1.1rem; font-weight: bold;">
+                                            <span style="font-size: 1.2rem;">🎨</span> Format Brand
+                                        </button>
+                                        <button class="tool-btn" onclick="clearBrandInputs()" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);">
+                                            🗑️ Clear
+                                        </button>
+                                        <button class="tool-btn" onclick="copyBrandResult()" style="background: rgba(76, 175, 80, 0.3); border-color: rgba(76, 175, 80, 0.5);">
+                                            📋 Copy
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="result-display" id="brandResult">
+                                        <div style="text-align: center; color: #666;">
+                                            <div style="font-size: 2rem; margin-bottom: 10px;">🎯</div>
+                                            <div>Formatted brand name will appear here</div>
+                                        </div>
+                                    </div>
+                                    <div class="char-counter" id="brandResultCounter" style="display: flex; justify-content: space-between;">
+                                        <span>0 characters</span>
+                                        <span id="brandStatus" style="color: #4ade80;"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tool-section" style="margin-top: 40px; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <h3 style="font-size: 1.8rem; margin-bottom: 10px;">📚 Algorithm Intelligence & Features</h3>
+                                <p style="opacity: 0.9;">Advanced processing capabilities powered by sophisticated text analysis</p>
+                            </div>
+                            
+                            <div class="two-column-grid" style="gap: 30px;">
+                                <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; backdrop-filter: blur(10px);">
+                                    <h4 style="color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                        <span style="font-size: 1.5rem;">✂️</span> Value Abbreviator Intelligence
+                                    </h4>
+                                    <div style="display: grid; gap: 12px;">
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #4ade80; font-size: 1.2rem;">🧠</span>
+                                            <span>Smart vowel preservation algorithm</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #60a5fa; font-size: 1.2rem;">🔍</span>
+                                            <span>Noise word detection & removal</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #f59e0b; font-size: 1.2rem;">⚙️</span>
+                                            <span>Repeated letter optimization</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #ec4899; font-size: 1.2rem;">✨</span>
+                                            <span>Context-aware capitalization</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #8b5cf6; font-size: 1.2rem;">🛡️</span>
+                                            <span>Special character handling</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="background: rgba(255,255,255,0.1); padding: 25px; border-radius: 15px; backdrop-filter: blur(10px);">
+                                    <h4 style="color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                                        <span style="font-size: 1.5rem;">🏷️</span> Brand Formatter Intelligence
+                                    </h4>
+                                    <div style="display: grid; gap: 12px;">
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #4ade80; font-size: 1.2rem;">🏢</span>
+                                            <span>Company name standardization</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #60a5fa; font-size: 1.2rem;">📐</span>
+                                            <span>40-character limit compliance</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #f59e0b; font-size: 1.2rem;">🎯</span>
+                                            <span>Format: Brand (OWNER) structure</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #ec4899; font-size: 1.2rem;">🔄</span>
+                                            <span>Intelligent case preservation</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 12px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                                            <span style="color: #8b5cf6; font-size: 1.2rem;">⚡</span>
+                                            <span>Real-time validation checks</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 30px; padding: 20px; background: rgba(59, 130, 246, 0.1); border-radius: 10px; border-left: 4px solid #3b82f6;">
+                                <h4 style="color: #fff; margin-bottom: 10px;">💡 Pro Tips for Best Results:</h4>
+                                <ul style="color: rgba(255,255,255,0.9); margin-left: 20px; line-height: 1.8;">
+                                    <li><strong>Value Abbreviator:</strong> Works best with product descriptions, technical specifications, and long form text</li>
+                                    <li><strong>Brand Formatter:</strong> Input brand names as they appear on product labels for optimal case sensitivity</li>
+                                    <li><strong>Special Characters:</strong> Both tools handle &, !, parentheses, and other symbols intelligently</li>
+                                    <li><strong>Processing Time:</strong> Complex text may take a moment to process for optimal results</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for dynamic data management
+        let excelData = {};
+        let activeSheets = [];
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWelcomeScreen();
+            loadExcelFromGitHub();
+            setupVBAToolsEventListeners();
+            
+            // Add event listener for VBA Tools button in welcome tab
+            setTimeout(() => {
+                const vbaButton = document.querySelector('.vba-tools-button');
+                if (vbaButton) {
+                    vbaButton.addEventListener('click', () => showTab('vba-tools'));
+                }
+            }, 100);
+        });
+
+        // Tab functionality - make it global
+        window.showTab = function(tabName) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show the selected tab pane
+            const targetPane = document.getElementById(tabName);
+            if (targetPane) {
+                targetPane.classList.add('active');
+            }
+            
+            // Find and activate the correct button
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                if (button.getAttribute('onclick') && button.getAttribute('onclick').includes(tabName)) {
+                    button.classList.add('active');
+                }
+            });
+            
+            // Save user preference
+            localStorage.setItem('lastActiveTab', tabName);
+        }
+
+        // Load Excel file directly from GitHub repository
+        async function loadExcelFromGitHub() {
+            try {
+                document.getElementById('loadingText').textContent = 'Loading Excel file from GitHub repository...';
+                
+                // Replace with your actual GitHub raw file URL
+                const githubUrl = 'https://raw.githubusercontent.com/yourusername/yourrepo/main/SKIN CARE COMPLETE DOCUMENT BY TAMILARASAN R 3.xlsx';
+                
+                const response = await fetch(githubUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, {
+                    cellStyles: true,
+                    cellFormulas: true,
+                    cellDates: true,
+                    cellNF: true,
+                    sheetStubs: true
+                });
+
+                document.getElementById('loadingText').textContent = 'Processing Excel sheets...';
+
+                // Clear existing data
+                excelData = {};
+                activeSheets = [];
+
+                // Process each sheet
+                workbook.SheetNames.forEach(sheetName => {
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                        header: 1, 
+                        defval: "",
+                        blankrows: false
+                    });
+                    
+                    // Filter out completely empty rows
+                    const filteredData = jsonData.filter(row => 
+                        row.some(cell => cell !== "" && cell !== null && cell !== undefined)
+                    );
+                    
+                    if (filteredData.length > 0) {
+                        // Create a safe ID for the sheet name
+                        const sheetId = sheetName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+                        excelData[sheetId] = {
+                            name: sheetName,
+                            data: filteredData
+                        };
+                        activeSheets.push({
+                            id: sheetId,
+                            name: sheetName,
+                            data: filteredData
+                        });
+                    }
+                });
+
+                document.getElementById('loadingText').textContent = 'Generating dynamic tabs...';
+                generateDynamicTabs();
+                updateStats();
+                
+                // Hide loading section
+                document.getElementById('loadingCard').style.display = 'none';
+                
+                showNotification('✅ Excel file loaded successfully from GitHub! All sheets processed.', 'success');
+                
+            } catch (error) {
+                console.error('Error loading Excel file from GitHub:', error);
+                document.getElementById('loadingText').textContent = 'Failed to load from GitHub. Loading sample data...';
+                loadSampleData();
+                showNotification('⚠️ Could not load from GitHub. Sample data loaded instead.', 'warning');
+            }
+        }
+
+        // Load sample data as fallback
+        function loadSampleData() {
+            excelData = {};
+            activeSheets = [];
+            
+            // Sample data
+            const sampleSheets = [
+                {
+                    id: 'definition',
+                    name: 'DEFINITION',
+                    data: [
+                        ["COMMODITY", "DEFINITION", "EXAMPLE-1", "EXAMPLE-2"],
+                        ["HAND AND BODY LOTION AND OIL", "Emulsified or non-emulsified preparations intended to be applied to the skin for cosmetic and/or therapeutic purposes", "Body lotion", "Hand cream"],
+                        ["SUNTAN AND AFTER TAN PREPARATION", "Products intended to protect skin from harmful UV rays or soothe skin after sun exposure", "Sunscreen", "After-sun lotion"],
+                        ["DEPILATORY PRODUCT", "Chemical or mechanical products for removing unwanted body hair", "Hair removal cream", "Depilatory wax"],
+                        ["SHAVING CREAM AND AFTER SHAVE", "Products that facilitate shaving or treat skin after shaving", "Shaving gel", "After shave balm"]
+                    ]
+                },
+                {
+                    id: 'ccn',
+                    name: 'CCN',
+                    data: [
+                        ["CATEGORY", "COMMODITY GROUP", "COMMON CONSUMER NAME"],
+                        ["SKIN CARE", "HAND AND BODY LOTION AND OIL", "ABDOMINAL CONTROL CREAM"],
+                        ["SKIN CARE", "HAND AND BODY LOTION AND OIL", "ABDOMINAL TONING CREAM"],
+                        ["SKIN CARE", "HAND AND BODY LOTION AND OIL", "AFTER SUN LOTION"],
+                        ["SKIN CARE", "SUNTAN AND AFTER TAN PREPARATION", "SUNSCREEN LOTION"]
+                    ]
+                },
+                {
+                    id: 'guidelines',
+                    name: 'KP GUIDELINES',
+                    data: [
+                        ["Date", "Instructor", "TYPE", "Category", "Cluster", "GUIDELINE", "Characteristic"],
+                        ["2012-07-16", "KP Instructor", "KP", "SKIN CARE", "BATH ADDITIVE AND OIL", "If a product states Essential Oils Mineral Bath, code into Bath Additive and Oil", "essential oils placement"],
+                        ["2012-09-18", "KP Instructor", "KP", "SKIN CARE", "BATH ADDITIVE AND OIL", "If no form is stated, it can be observed, but if you can't observe it use liquid.", "form"]
+                    ]
+                }
+            ];
+            
+            activeSheets = sampleSheets;
+            sampleSheets.forEach(sheet => {
+                excelData[sheet.id] = sheet;
+            });
+            
+            generateDynamicTabs();
+            updateStats();
+            
+            // Hide loading section
+            document.getElementById('loadingCard').style.display = 'none';
+        }
+
+        // Generate dynamic tabs based on loaded sheets
+        function generateDynamicTabs() {
+            const tabNavigation = document.getElementById('tabNavigation');
+            const tabContent = document.getElementById('tabContent');
+            
+            // Clear existing tabs and add new ones
+            tabNavigation.innerHTML = '';
+            
+            // Welcome tab
+            const welcomeBtn = document.createElement('button');
+            welcomeBtn.className = 'tab-button active';
+            welcomeBtn.textContent = '🏠 Welcome';
+            welcomeBtn.addEventListener('click', () => showTab('welcome'));
+            tabNavigation.appendChild(welcomeBtn);
+            
+            // Data sheet tabs
+            activeSheets.forEach(sheet => {
+                const btn = document.createElement('button');
+                btn.className = 'tab-button';
+                btn.textContent = `${getSheetIcon(sheet.name)} ${sheet.name}`;
+                btn.addEventListener('click', () => showTab(sheet.id));
+                tabNavigation.appendChild(btn);
+            });
+            
+            // VBA Tools tab
+            const vbaBtn = document.createElement('button');
+            vbaBtn.className = 'tab-button';
+            vbaBtn.textContent = '🛠️ VBA Tools';
+            vbaBtn.addEventListener('click', () => showTab('vba-tools'));
+            tabNavigation.appendChild(vbaBtn);
+            
+            // Generate tab content
+            let tabPanes = document.getElementById('tabContent').innerHTML;
+            
+            // Generate content for each sheet
+            activeSheets.forEach(sheet => {
+                tabPanes += generateSheetTab(sheet);
+            });
+            
+            tabContent.innerHTML = tabPanes;
+            
+            // Setup search functionality for all generated tabs
+            setupDynamicSearchFunctionality();
+            
+            // Update welcome tab with loaded data info
+            updateWelcomeTab();
+        }
+
+        // Get appropriate icon for sheet name
+        function getSheetIcon(sheetName) {
+            const name = sheetName.toLowerCase();
+            if (name.includes('definition')) return '📖';
+            if (name.includes('ccn')) return '🏷️';
+            if (name.includes('guideline')) return '📋';
+            if (name.includes('characteristic')) return '🔍';
+            if (name.includes('impc')) return '🔢';
+            if (name.includes('update')) return '🔄';
+            if (name.includes('agenda')) return '📋';
+            return '📊';
+        }
+
+        // Generate content for individual sheet
+        function generateSheetTab(sheet) {
+            return `
+                <div id="${sheet.id}" class="tab-pane">
+                    <h2>${getSheetIcon(sheet.name)} ${sheet.name}</h2>
+                    <div class="table-controls">
+                        <input type="text" class="search-input" id="${sheet.id}Search" placeholder="🔍 Search ${sheet.name} data...">
+                        <button class="export-btn" onclick="exportToExcel('${sheet.id}')">📥 Export Excel</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <div class="table-container" id="${sheet.id}TableContainer">
+                            <div id="${sheet.id}Table">${generateDataTable(sheet.data)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Generate data table HTML
+        function generateDataTable(data) {
+            if (!data || data.length === 0) {
+                return '<div class="no-data">No data available</div>';
+            }
+
+            const headers = data[0] || [];
+            const rows = data.slice(1);
+
+            return `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            ${headers.map(header => `<th>${header}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(row => `
+                            <tr>
+                                ${row.map(cell => `<td title="${cell || ''}">${cell || ''}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Setup search functionality for dynamic tabs
+        function setupDynamicSearchFunctionality() {
+            activeSheets.forEach(sheet => {
+                const searchInput = document.getElementById(`${sheet.id}Search`);
+                if (searchInput) {
+                    searchInput.addEventListener('input', function(e) {
+                        searchTable(`${sheet.id}Table`, e.target.value);
+                    });
+                }
+            });
+        }
+
+        // Global table search
+        function searchTable(containerId, searchValue) {
+            const container = document.getElementById(containerId);
+            const table = container.querySelector('.data-table');
+            if (!table) return;
+
+            const rows = table.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const rowText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+                const showRow = searchValue === '' || rowText.includes(searchValue.toLowerCase());
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+
+        // Update welcome tab with loaded data
+        function updateWelcomeTab() {
+            const statusDiv = document.getElementById('dataLoadStatus');
+            const buttonsDiv = document.getElementById('quickAccessButtons');
+            
+            if (statusDiv && activeSheets.length > 0) {
+                statusDiv.innerHTML = `✅ Successfully loaded ${activeSheets.length} sheets with ${getTotalRows()} total rows`;
+                
+                if (buttonsDiv) {
+                    buttonsDiv.innerHTML = activeSheets.slice(0, 4).map(sheet => `
+                        <button onclick="showTab('${sheet.id}')" style="background: #667eea; color: white; border: none; padding: 8px 15px; border-radius: 15px; font-size: 0.9rem; cursor: pointer;">
+                            ${getSheetIcon(sheet.name)} ${sheet.name}
+                        </button>
+                    `).join('');
+                }
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalSheets').textContent = activeSheets.length;
+            document.getElementById('totalRows').textContent = getTotalRows();
+            document.getElementById('totalColumns').textContent = getTotalColumns();
+        }
+
+        // Get total rows across all sheets
+        function getTotalRows() {
+            return activeSheets.reduce((total, sheet) => total + Math.max(0, sheet.data.length - 1), 0);
+        }
+
+        // Get total columns across all sheets
+        function getTotalColumns() {
+            return activeSheets.reduce((total, sheet) => {
+                const headers = sheet.data[0] || [];
+                return total + headers.length;
+            }, 0);
+        }
+
+        // Export to Excel functionality
+        function exportToExcel(sheetId) {
+            const sheetData = excelData[sheetId];
+            if (!sheetData || !sheetData.data || sheetData.data.length === 0) {
+                showNotification('❌ No data available to export', 'error');
+                return;
+            }
+
+            const ws = XLSX.utils.aoa_to_sheet(sheetData.data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, sheetData.name);
+            XLSX.writeFile(wb, `skincare_${sheetData.name}_${new Date().toISOString().split('T')[0]}.xlsx`);
+            
+            showNotification('📥 Excel file exported successfully!', 'success');
+        }
+
+        // Make all VBA tool functions global
+        window.processValueAbbreviation = processValueAbbreviation;
+        window.processBrandAbbreviation = processBrandAbbreviation;
+        window.clearValueInputs = clearValueInputs;
+        window.clearBrandInputs = clearBrandInputs;
+        window.copyValueResult = copyValueResult;
+        window.copyBrandResult = copyBrandResult;
+        window.exportToExcel = exportToExcel;
+
+        // Setup VBA Tools Event Listeners
+        function setupVBAToolsEventListeners() {
+            // Add event listeners for real-time character counting
+            setTimeout(() => {
+                const valueInput = document.getElementById('valueInput');
+                const brandInput = document.getElementById('brandInput');
+                const brandOwnerInput = document.getElementById('brandOwnerInput');
+                
+                if (valueInput) {
+                    valueInput.addEventListener('input', () => updateCharCounter('valueInput', 'valueInputCounter'));
+                }
+                if (brandInput) {
+                    brandInput.addEventListener('input', updateBrandCharCounter);
+                }
+                if (brandOwnerInput) {
+                    brandOwnerInput.addEventListener('input', updateBrandCharCounter);
+                }
+            }, 100);
+        }
+
+        // Character counter for inputs
+        function updateCharCounter(inputId, counterId) {
+            const input = document.getElementById(inputId);
+            const counter = document.getElementById(counterId);
+            const status = document.getElementById('valueInputStatus');
+            const length = input.value.length;
+            
+            if (counter) {
+                counter.innerHTML = `<span>${length} characters</span>`;
+                if (status) {
+                    if (length === 0) {
+                        status.textContent = 'Ready for processing';
+                        status.style.color = '#4ade80';
+                    } else if (length <= 100) {
+                        status.textContent = 'Optimal length';
+                        status.style.color = '#4ade80';
+                    } else if (length <= 200) {
+                        status.textContent = 'Good for processing';
+                        status.style.color = '#f59e0b';
+                    } else {
+                        status.textContent = 'Consider shorter text for best results';
+                        status.style.color = '#ef4444';
+                    }
+                }
+            }
+        }
+
+        function updateBrandCharCounter() {
+            const brandInput = document.getElementById('brandInput');
+            const ownerInput = document.getElementById('brandOwnerInput');
+            const brandCounter = document.getElementById('brandInputCounter');
+            const ownerCounter = document.getElementById('brandOwnerCounter');
+            
+            if (brandCounter) brandCounter.textContent = `${brandInput.value.length} characters`;
+            if (ownerCounter) ownerCounter.textContent = `${ownerInput.value.length} characters`;
+        }
+
+        // Value Abbreviation Algorithm (converted from VBA)
+        function processValueAbbreviation() {
+            const input = document.getElementById('valueInput').value.trim();
+            const resultDiv = document.getElementById('valueResult');
+            const counterDiv = document.getElementById('valueResultCounter');
+            const compressionDiv = document.getElementById('valueCompressionRatio');
+            
+            if (!input) {
+                showAnimatedMessage(resultDiv, '⚠️ Please enter text to process', '#f59e0b');
+                return;
+            }
+
+            showProcessingAnimation(resultDiv);
+            
+            setTimeout(() => {
+                try {
+                    const result = valueAbbreviateSentence(input);
+                    const originalLength = input.length;
+                    const resultLength = result.length;
+                    const compressionRatio = Math.round((1 - resultLength/originalLength) * 100);
+                    
+                    resultDiv.innerHTML = `<div style="padding: 20px; text-align: center; font-size: 1.1rem; font-weight: 500; color: #333;">${result}</div>`;
+                    counterDiv.innerHTML = `<span>${resultLength} characters</span>`;
+                    
+                    if (compressionDiv) {
+                        compressionDiv.innerHTML = `${compressionRatio}% compression achieved`;
+                        compressionDiv.style.color = resultLength <= 60 ? '#4ade80' : '#f59e0b';
+                    }
+                    
+                    resultDiv.style.animation = 'fadeIn 0.5s ease';
+                    
+                } catch (error) {
+                    showAnimatedMessage(resultDiv, '❌ Processing error occurred', '#ef4444');
+                }
+            }, 1500);
+        }
+
+        // Brand Abbreviation Algorithm (converted from VBA)
+        function processBrandAbbreviation() {
+            const brandInput = document.getElementById('brandInput').value.trim();
+            const ownerInput = document.getElementById('brandOwnerInput').value.trim();
+            const resultDiv = document.getElementById('brandResult');
+            const counterDiv = document.getElementById('brandResultCounter');
+            const statusDiv = document.getElementById('brandStatus');
+            
+            if (!brandInput || !ownerInput) {
+                showAnimatedMessage(resultDiv, '⚠️ Please enter both brand name and owner', '#f59e0b');
+                return;
+            }
+
+            showProcessingAnimation(resultDiv);
+            
+            setTimeout(() => {
+                try {
+                    const result = processBrandAndOwner(brandInput, ownerInput);
+                    const resultLength = result.length;
+                    
+                    resultDiv.innerHTML = `<div style="padding: 20px; text-align: center; font-size: 1.1rem; font-weight: 500; color: #333;">${result}</div>`;
+                    counterDiv.innerHTML = `<span>${resultLength} characters</span>`;
+                    
+                    if (statusDiv) {
+                        if (resultLength <= 40) {
+                            statusDiv.innerHTML = '✅ Within 40 character limit';
+                            statusDiv.style.color = '#4ade80';
+                        } else {
+                            statusDiv.innerHTML = '⚠️ Exceeds 40 character limit';
+                            statusDiv.style.color = '#f59e0b';
+                        }
+                    }
+                    
+                    resultDiv.style.animation = 'fadeIn 0.5s ease';
+                    
+                } catch (error) {
+                    showAnimatedMessage(resultDiv, '❌ Processing error occurred', '#ef4444');
+                }
+            }, 1200);
+        }
+
+        // Clear functions
+        function clearValueInputs() {
+            document.getElementById('valueInput').value = '';
+            document.getElementById('valueResult').innerHTML = `
+                <div style="text-align: center; color: #666;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">✨</div>
+                    <div>Processed result will appear here</div>
+                </div>
+            `;
+            updateCharCounter('valueInput', 'valueInputCounter');
+            document.getElementById('valueResultCounter').innerHTML = '<span>0 characters</span>';
+            document.getElementById('valueCompressionRatio').innerHTML = '';
+        }
+
+        function clearBrandInputs() {
+            document.getElementById('brandInput').value = '';
+            document.getElementById('brandOwnerInput').value = '';
+            document.getElementById('brandResult').innerHTML = `
+                <div style="text-align: center; color: #666;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🎯</div>
+                    <div>Formatted brand name will appear here</div>
+                </div>
+            `;
+            updateBrandCharCounter();
+            document.getElementById('brandResultCounter').innerHTML = '<span>0 characters</span>';
+            document.getElementById('brandStatus').innerHTML = '';
+        }
+
+        // Copy functions
+        function copyValueResult() {
+            const resultDiv = document.getElementById('valueResult');
+            const text = resultDiv.textContent.trim();
+            if (text && text !== 'Processed result will appear here') {
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification('📋 Result copied to clipboard!', 'success');
+                });
+            }
+        }
+
+        function copyBrandResult() {
+            const resultDiv = document.getElementById('brandResult');
+            const text = resultDiv.textContent.trim();
+            if (text && text !== 'Formatted brand name will appear here') {
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification('📋 Result copied to clipboard!', 'success');
+                });
+            }
+        }
+
+        // Animation helpers
+        function showProcessingAnimation(element) {
+            element.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 80px; gap: 15px;">
+                    <div class="loading-spinner" style="width: 30px; height: 30px; border-width: 3px;"></div>
+                    <span style="color: #666; font-weight: 500;">Processing...</span>
+                </div>
+            `;
+        }
+
+        function showAnimatedMessage(element, message, color) {
+            element.innerHTML = `
+                <div style="padding: 20px; text-align: center; color: ${color}; font-weight: 500;">
+                    ${message}
+                </div>
+            `;
+            element.style.animation = 'fadeIn 0.3s ease';
+        }
+
+        // Notification system
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // Core abbreviation algorithms (converted from VBA)
+        function valueAbbreviateSentence(sentence) {
+            const vowels = "AEIOU";
+            const noiseWords = ["IT", "SO", "OR", "AN", "DO", "AT", "IF", "IS", "BY", "BE", "TO", "OF", "IN", "AS", "ON", "THE", "AND", "FOR", "ITS", "FROM", "THAT", "JUST", "THESE", "A"];
+            
+            // Clean input
+            sentence = sentence.replace(/\s+/g, ' ').trim();
+            let originalSentence = sentence;
+            sentence = sentence.toUpperCase();
+            
+            // Handle special characters
+            if (containsSpecialCharacters(sentence)) {
+                sentence = cleanSpecialCharacters(sentence);
+            }
+            
+            // Main processing loop
+            while (sentence.length > 60) {
+                sentence = removeNoiseWords(sentence, noiseWords);
+                if (sentence.length <= 60) break;
+                
+                let words = sentence.split(/\s+/);
+                let longWords = words.filter(word => word.length > 3);
+                
+                // Abbreviate words from right to left
+                for (let i = longWords.length - 1; i >= 0; i--) {
+                    let word = longWords[i];
+                    if (word.length > 3) {
+                        let abbreviated = abbreviateWord(word, vowels);
+                        sentence = sentence.replace(new RegExp('\\b' + word + '\\b'), abbreviated);
+                        if (sentence.length <= 60) break;
+                    }
+                }
+                
+                if (sentence.length > 60) {
+                    sentence = shortenWords(sentence);
+                }
+                
+                if (sentence.length <= 60) break;
+            }
+            
+            return restoreCapitalization(sentence, originalSentence);
+        }
+
+        function processBrandAndOwner(brand, brandOwner) {
+            // Remove newlines and clean
+            brand = brand.replace(/\n/g, '').trim();
+            brandOwner = brandOwner.replace(/\n/g, '').trim();
+            
+            let abbreviatedBrand = abbreviateSentence(brand);
+            let abbreviatedOwner = abbreviateSentence(brandOwner);
+            
+            return formatOutputs(abbreviatedBrand, abbreviatedOwner);
+        }
+
+        function abbreviateSentence(sentence) {
+            let result = sentence;
+            
+            // Replace default company words
+            const replacements = [
+                ['LIMITED LIABILITY COMPANY', 'LLC'],
+                ['LIMITED', 'LTD'],
+                ['INCORPORATION', 'INC'],
+                ['CORPORATION', 'CORP'],
+                ['PRIVATE LIMITED', 'PVT LTD'],
+                ['COMPANY', 'CO']
+            ];
+            
+            replacements.forEach(([search, replace]) => {
+                result = result.replace(new RegExp(search, 'gi'), replace);
+            });
+            
+            if (result.length <= 40) return result;
+            
+            // Further abbreviation if needed
+            let words = result.split(/\s+/);
+            for (let i = words.length - 1; i >= 0; i--) {
+                if (words[i].length > 3) {
+                    words[i] = abbreviateWord(words[i], "AEIOU");
+                    result = words.join(' ');
+                    if (result.length <= 40) break;
+                }
+            }
+            
+            return result;
+        }
+
+        function formatOutputs(output1, output2) {
+            output1 = output1.trim();
+            output2 = output2.trim().toUpperCase();
+            return `${output1} (${output2})`;
+        }
+
+        function abbreviateWord(word, vowels) {
+            let result = word;
+            let preserved = "";
+            
+            // Preserve initial vowels
+            if (vowels.includes(result.charAt(0).toUpperCase())) {
+                if (vowels.includes(result.charAt(1).toUpperCase())) {
+                    preserved = result.substring(0, 2);
+                    result = result.substring(2);
+                } else {
+                    preserved = result.charAt(0);
+                    result = result.substring(1);
+                }
+            }
+            
+            // Remove repeated letters
+            result = result.replace(/(.)\1+/g, '$1');
+            
+            // Remove vowels
+            result = result.replace(/[aeiouAEIOU]/g, '');
+            
+            result = preserved + result;
+            
+            // Limit to 5 characters
+            return result.length > 5 ? result.substring(0, 5) : result;
+        }
+
+        function removeNoiseWords(sentence, noiseWords) {
+            let words = sentence.split(/\s+/);
+            return words.filter(word => !noiseWords.includes(word.toUpperCase())).join(' ');
+        }
+
+        function containsSpecialCharacters(text) {
+            return /[^a-zA-Z0-9\s]/.test(text);
+        }
+
+        function cleanSpecialCharacters(text) {
+            return text.replace(/[^a-zA-Z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        function shortenWords(sentence) {
+            let words = sentence.split(/\s+/);
+            for (let i = words.length - 1; i >= 0; i--) {
+                if (words[i].length > 3) {
+                    words[i] = words[i].substring(0, words[i].length - 1);
+                    let result = words.join(' ');
+                    if (result.length <= 60) return result;
+                }
+            }
+            return words.join(' ');
+        }
+
+        function restoreCapitalization(abbreviated, original) {
+            let abbWords = abbreviated.split(/\s+/);
+            let origWords = original.split(/\s+/);
+            
+            for (let i = 0; i < abbWords.length && i < origWords.length; i++) {
+                if (origWords[i] === origWords[i].toUpperCase()) {
+                    abbWords[i] = abbWords[i].toUpperCase();
+                } else if (origWords[i].charAt(0) === origWords[i].charAt(0).toUpperCase()) {
+                    abbWords[i] = abbWords[i].charAt(0).toUpperCase() + abbWords[i].substring(1).toLowerCase();
+                } else {
+                    abbWords[i] = abbWords[i].toLowerCase();
+                }
+            }
+            
+            return abbWords.join(' ');
+        }
+
+        // Initialize welcome screen
+        function initializeWelcomeScreen() {
+            // VBA Tools tab is already in the HTML, so no need to regenerate
+            console.log('Dashboard initialized with VBA Tools available');
+        }
+
+        // Force setup character counters after DOM is fully loaded
+        setTimeout(() => {
+            // Value Input character counter
+            const valueInput = document.getElementById('valueInput');
+            if (valueInput) {
+                valueInput.addEventListener('input', function() {
+                    updateCharCounter('valueInput', 'valueInputCounter');
+                });
+                // Trigger initial count
+                updateCharCounter('valueInput', 'valueInputCounter');
+            }
+
+            // Brand inputs character counters
+            const brandInput = document.getElementById('brandInput');
+            const brandOwnerInput = document.getElementById('brandOwnerInput');
+            
+            if (brandInput) {
+                brandInput.addEventListener('input', function() {
+                    updateBrandCharCounter();
+                });
+            }
+            
+            if (brandOwnerInput) {
+                brandOwnerInput.addEventListener('input', function() {
+                    updateBrandCharCounter();
+                });
+            }
+            
+            // Trigger initial count for brand inputs
+            updateBrandCharCounter();
+        }, 2000);
+
+        // Also add manual trigger when VBA tab is shown
+        const originalShowTab = window.showTab;
+        window.showTab = function(tabName) {
+            originalShowTab(tabName);
+            
+            if (tabName === 'vba-tools') {
+                // Re-setup character counters when VBA tab is shown
+                setTimeout(() => {
+                    updateBrandCharCounter();
+                    updateCharCounter('valueInput', 'valueInputCounter');
+                }, 100);
+            }
+        };
+    </script>
+</body>
+</html>
