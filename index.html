@@ -208,9 +208,11 @@
         }
 
         .tab-button.active {
-            background: rgba(102, 126, 234, 0.1);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
             color: #667eea;
             border-bottom-color: #667eea;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
 
         .tab-content {
@@ -302,10 +304,114 @@
             z-index: 10;
             white-space: nowrap;
             border-right: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .data-table th:hover {
+            background: linear-gradient(45deg, #5a67d8, #6b3f9e);
         }
 
         .data-table th:last-child {
             border-right: none;
+        }
+
+        .filter-icon {
+            margin-left: 8px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .data-table th:hover .filter-icon {
+            opacity: 1;
+        }
+
+        .column-filter {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 10px;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            margin-top: 5px;
+        }
+
+        .column-filter.active {
+            display: block;
+        }
+
+        .filter-option {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.2s ease;
+            color: #333;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-option:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-option input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .filter-search {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.apply {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn.apply:hover {
+            background: #5a67d8;
+        }
+
+        .filter-btn.clear {
+            background: #f1f3f4;
+            color: #666;
+        }
+
+        .filter-btn.clear:hover {
+            background: #e9ecef;
         }
 
         .data-table td {
@@ -664,8 +770,8 @@
         <!-- Tab Container -->
         <div class="tab-container">
             <div class="tab-navigation" id="tabNavigation">
-                <button class="tab-button active" onclick="showTab('welcome')">🏠 Welcome</button>
-                <button class="tab-button" onclick="showTab('vba-tools')">🛠️ VBA Tools</button>
+                <button class="tab-button active" data-tab="welcome" onclick="showTab('welcome')">🏠 Welcome</button>
+                <button class="tab-button" data-tab="vba-tools" onclick="showTab('vba-tools')">🛠️ VBA Tools</button>
             </div>
 
             <div class="tab-content" id="tabContent">
@@ -707,6 +813,51 @@
                             <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="quickAccessButtons">
                                 <!-- Quick access buttons will be added here after data loads -->
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Training Tab -->
+                <div id="training" class="tab-pane">
+                    <h2 style="margin-bottom: 25px;">🎓 Training Materials & Presentation</h2>
+                    
+                    <div style="background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                        <div style="text-align: center; margin-bottom: 25px;">
+                            <h3 style="color: #2c3e50; margin-bottom: 10px;">📊 Skin Care Training Document</h3>
+                            <p style="color: #7f8c8d;">Access comprehensive training materials and presentation resources</p>
+                        </div>
+                        
+                        <!-- PDF Viewer contained within the white canvas -->
+                        <div style="background: #f8f9fa; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+                            <div style="background: white; border-radius: 10px; padding: 0; overflow: hidden; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
+                                <iframe src="SKIN-CARE-TRAINING.pdf" 
+                                        width="100%" 
+                                        height="600px" 
+                                        style="border: none; display: block; border-radius: 10px;">
+                                </iframe>
+                            </div>
+                            <p style="color: #666; text-align: center; margin-top: 15px; font-size: 0.9rem; font-style: italic;">
+                                Use the controls above to navigate through the training presentation
+                            </p>
+                        </div>
+                        
+                        <!-- Download buttons -->
+                        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                            <a href="SKIN-CARE-TRAINING.pdf" 
+                               style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);"
+                               download
+                               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.4)'"
+                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(102, 126, 234, 0.3)'">
+                                <span style="font-size: 1.2rem;">📄</span> Download PDF
+                            </a>
+                            
+                            <a href="https://raw.githubusercontent.com/Cyril-20/SKINCARE/main/SKIN%20CARE%20TRAINING%20DOCUMENT%20BY%20TAMILARASAN%20R%201.pptx" 
+                               style="background: linear-gradient(45deg, #f59e0b, #ef4444); color: white; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);"
+                               download
+                               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(245, 158, 11, 0.4)'"
+                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(245, 158, 11, 0.3)'">
+                                <span style="font-size: 1.2rem;">📊</span> Download PowerPoint
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -925,53 +1076,12 @@
             </div>
         </div>
     </div>
-    </div>
-                    </div>
-                </div>
-
-                <!-- Training Tab -->
-                <div id="training" class="tab-pane">
-                    <h2>🎓 Training Materials & Presentation</h2>
-                    <div class="vba-tools-container">
-                        <h3 style="margin-bottom: 20px;">📊 Skin Care Training Document</h3>
-                        <p style="margin-bottom: 20px; opacity: 0.9;">Access training materials and presentation resources</p>
-                        
-                        <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 25px; margin: 20px 0;">
-                            <h4 style="color: white; text-align: center; margin-bottom: 20px;">Training Presentation Viewer</h4>
-                            
-                            <!-- PDF Viewer contained within the tab -->
-                            <div style="background: white; border-radius: 10px; padding: 15px; margin-bottom: 20px; width: 100%; box-sizing: border-box;">
-                                <iframe src="SKIN-CARE-TRAINING.pdf" 
-                                        width="100%" 
-                                        height="400px" 
-                                        style="border: 1px solid #ddd; border-radius: 8px; display: block;">
-                                    <p style="color: #666; text-align: center; padding: 20px;">
-                                        Your browser doesn't support PDF viewing. Please use the download links below.
-                                    </p>
-                                </iframe>
-                            </div>
-                            
-                            <!-- Download buttons -->
-                            <div style="text-align: center;">
-                                <a href="your-pdf-file.pdf" 
-                                   style="background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; margin: 5px; display: inline-block;"
-                                   download>📄 Download PDF</a>
-                                
-                                <a href="https://raw.githubusercontent.com/Cyril-20/SKINCARE/main/SKIN%20CARE%20TRAINING%20DOCUMENT%20BY%20TAMILARASAN%20R%201.pptx" 
-                                   style="background: rgba(255,255,255,0.2); color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; margin: 5px; display: inline-block;"
-                                   download>📊 Download PowerPoint</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         // Global variables for dynamic data management
         let excelData = {};
         let activeSheets = [];
+        let columnFilters = {};
 
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function() {
@@ -1006,13 +1116,11 @@
                 targetPane.classList.add('active');
             }
             
-            // Find and activate the correct button
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(button => {
-                if (button.getAttribute('onclick') && button.getAttribute('onclick').includes(tabName)) {
-                    button.classList.add('active');
-                }
-            });
+            // Find and activate the correct button using data-tab attribute
+            const activeButton = document.querySelector(`.tab-button[data-tab="${tabName}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
             
             // Save user preference
             localStorage.setItem('lastActiveTab', tabName);
@@ -1023,7 +1131,6 @@
             try {
                 document.getElementById('loadingText').textContent = 'Loading Excel file from GitHub repository...';
                 
-                // Replace with your actual GitHub raw file URL
                 const githubUrl = 'https://raw.githubusercontent.com/Cyril-20/SKINCARE/main/SKIN CARE COMPLETE DOCUMENT BY TAMILARASAN R 3.xlsx';
                 
                 const response = await fetch(githubUrl);
@@ -1061,7 +1168,6 @@
                     );
                     
                     if (filteredData.length > 0) {
-                        // Create a safe ID for the sheet name
                         const sheetId = sheetName.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
                         excelData[sheetId] = {
                             name: sheetName,
@@ -1079,7 +1185,6 @@
                 generateDynamicTabs();
                 updateStats();
                 
-                // Hide loading section
                 document.getElementById('loadingCard').style.display = 'none';
                 
                 showNotification('✅ Excel file loaded successfully from GitHub! All sheets processed.', 'success');
@@ -1097,7 +1202,6 @@
             excelData = {};
             activeSheets = [];
             
-            // Sample data
             const sampleSheets = [
                 {
                     id: 'definition',
@@ -1120,15 +1224,6 @@
                         ["SKIN CARE", "HAND AND BODY LOTION AND OIL", "AFTER SUN LOTION"],
                         ["SKIN CARE", "SUNTAN AND AFTER TAN PREPARATION", "SUNSCREEN LOTION"]
                     ]
-                },
-                {
-                    id: 'guidelines',
-                    name: 'KP GUIDELINES',
-                    data: [
-                        ["Date", "Instructor", "TYPE", "Category", "Cluster", "GUIDELINE", "Characteristic"],
-                        ["2012-07-16", "KP Instructor", "KP", "SKIN CARE", "BATH ADDITIVE AND OIL", "If a product states Essential Oils Mineral Bath, code into Bath Additive and Oil", "essential oils placement"],
-                        ["2012-09-18", "KP Instructor", "KP", "SKIN CARE", "BATH ADDITIVE AND OIL", "If no form is stated, it can be observed, but if you can't observe it use liquid.", "form"]
-                    ]
                 }
             ];
             
@@ -1140,7 +1235,6 @@
             generateDynamicTabs();
             updateStats();
             
-            // Hide loading section
             document.getElementById('loadingCard').style.display = 'none';
         }
 
@@ -1149,13 +1243,13 @@
             const tabNavigation = document.getElementById('tabNavigation');
             const tabContent = document.getElementById('tabContent');
             
-            // Clear existing tabs and add new ones
             tabNavigation.innerHTML = '';
             
             // Welcome tab
             const welcomeBtn = document.createElement('button');
             welcomeBtn.className = 'tab-button active';
             welcomeBtn.textContent = '🏠 Welcome';
+            welcomeBtn.setAttribute('data-tab', 'welcome');
             welcomeBtn.addEventListener('click', () => showTab('welcome'));
             tabNavigation.appendChild(welcomeBtn);
             
@@ -1164,6 +1258,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'tab-button';
                 btn.textContent = `${getSheetIcon(sheet.name)} ${sheet.name}`;
+                btn.setAttribute('data-tab', sheet.id);
                 btn.addEventListener('click', () => showTab(sheet.id));
                 tabNavigation.appendChild(btn);
             });
@@ -1172,6 +1267,7 @@
             const trainingBtn = document.createElement('button');
             trainingBtn.className = 'tab-button';
             trainingBtn.textContent = '🎓 Training';
+            trainingBtn.setAttribute('data-tab', 'training');
             trainingBtn.addEventListener('click', () => showTab('training'));
             tabNavigation.appendChild(trainingBtn);
             
@@ -1179,23 +1275,21 @@
             const vbaBtn = document.createElement('button');
             vbaBtn.className = 'tab-button';
             vbaBtn.textContent = '🛠️ VBA Tools';
+            vbaBtn.setAttribute('data-tab', 'vba-tools');
             vbaBtn.addEventListener('click', () => showTab('vba-tools'));
             tabNavigation.appendChild(vbaBtn);
             
             // Generate tab content
             let tabPanes = document.getElementById('tabContent').innerHTML;
             
-            // Generate content for each sheet
             activeSheets.forEach(sheet => {
                 tabPanes += generateSheetTab(sheet);
             });
             
             tabContent.innerHTML = tabPanes;
             
-            // Setup search functionality for all generated tabs
             setupDynamicSearchFunctionality();
-            
-            // Update welcome tab with loaded data info
+            setupColumnFilters();
             updateWelcomeTab();
         }
 
@@ -1223,15 +1317,15 @@
                     </div>
                     <div class="table-wrapper">
                         <div class="table-container" id="${sheet.id}TableContainer">
-                            <div id="${sheet.id}Table">${generateDataTable(sheet.data)}</div>
+                            <div id="${sheet.id}Table">${generateDataTable(sheet.data, sheet.id)}</div>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        // Generate data table HTML
-        function generateDataTable(data) {
+        // Generate data table HTML with filter capability
+        function generateDataTable(data, sheetId) {
             if (!data || data.length === 0) {
                 return '<div class="no-data">No data available</div>';
             }
@@ -1240,10 +1334,25 @@
             const rows = data.slice(1);
 
             return `
-                <table class="data-table">
+                <table class="data-table" id="table-${sheetId}">
                     <thead>
                         <tr>
-                            ${headers.map(header => `<th>${header}</th>`).join('')}
+                            ${headers.map((header, index) => `
+                                <th style="position: relative;">
+                                    <span onclick="toggleColumnFilter('${sheetId}', ${index}, this)">
+                                        ${header} <span class="filter-icon">🔽</span>
+                                    </span>
+                                    <div class="column-filter" id="filter-${sheetId}-${index}">
+                                        <input type="text" class="filter-search" placeholder="Search values..." 
+                                               oninput="filterColumnValues('${sheetId}', ${index})">
+                                        <div id="filter-options-${sheetId}-${index}"></div>
+                                        <div class="filter-actions">
+                                            <button class="filter-btn apply" onclick="applyColumnFilter('${sheetId}', ${index})">Apply</button>
+                                            <button class="filter-btn clear" onclick="clearColumnFilter('${sheetId}', ${index})">Clear</button>
+                                        </div>
+                                    </div>
+                                </th>
+                            `).join('')}
                         </tr>
                     </thead>
                     <tbody>
@@ -1255,6 +1364,135 @@
                     </tbody>
                 </table>
             `;
+        }
+
+        // Setup column filters
+        function setupColumnFilters() {
+            activeSheets.forEach(sheet => {
+                const data = sheet.data;
+                if (data.length < 2) return;
+
+                const headers = data[0];
+                const rows = data.slice(1);
+
+                headers.forEach((header, colIndex) => {
+                    // Get unique values for this column
+                    const uniqueValues = [...new Set(rows.map(row => row[colIndex] || ''))].sort();
+                    
+                    // Initialize filter state
+                    if (!columnFilters[sheet.id]) {
+                        columnFilters[sheet.id] = {};
+                    }
+                    columnFilters[sheet.id][colIndex] = {
+                        values: uniqueValues,
+                        selected: new Set(uniqueValues)
+                    };
+
+                    // Populate filter options
+                    const optionsDiv = document.getElementById(`filter-options-${sheet.id}-${colIndex}`);
+                    if (optionsDiv) {
+                        optionsDiv.innerHTML = uniqueValues.map(value => `
+                            <div class="filter-option">
+                                <input type="checkbox" id="filter-${sheet.id}-${colIndex}-${value}" 
+                                       value="${value}" checked 
+                                       onchange="updateFilterSelection('${sheet.id}', ${colIndex}, '${value}', this.checked)">
+                                <label for="filter-${sheet.id}-${colIndex}-${value}">${value || '(empty)'}</label>
+                            </div>
+                        `).join('');
+                    }
+                });
+            });
+        }
+
+        // Toggle column filter dropdown
+        window.toggleColumnFilter = function(sheetId, colIndex, element) {
+            // Close all other filters
+            document.querySelectorAll('.column-filter').forEach(filter => {
+                if (filter.id !== `filter-${sheetId}-${colIndex}`) {
+                    filter.classList.remove('active');
+                }
+            });
+
+            // Toggle current filter
+            const filter = document.getElementById(`filter-${sheetId}-${colIndex}`);
+            filter.classList.toggle('active');
+
+            // Close filter when clicking outside
+            if (filter.classList.contains('active')) {
+                setTimeout(() => {
+                    const closeFilter = (e) => {
+                        if (!filter.contains(e.target) && !element.contains(e.target)) {
+                            filter.classList.remove('active');
+                            document.removeEventListener('click', closeFilter);
+                        }
+                    };
+                    document.addEventListener('click', closeFilter);
+                }, 0);
+            }
+        }
+
+        // Filter column values in dropdown
+        window.filterColumnValues = function(sheetId, colIndex) {
+            const searchInput = document.querySelector(`#filter-${sheetId}-${colIndex} .filter-search`);
+            const searchTerm = searchInput.value.toLowerCase();
+            const options = document.querySelectorAll(`#filter-options-${sheetId}-${colIndex} .filter-option`);
+
+            options.forEach(option => {
+                const label = option.querySelector('label').textContent.toLowerCase();
+                option.style.display = label.includes(searchTerm) ? 'flex' : 'none';
+            });
+        }
+
+        // Update filter selection
+        window.updateFilterSelection = function(sheetId, colIndex, value, checked) {
+            if (checked) {
+                columnFilters[sheetId][colIndex].selected.add(value);
+            } else {
+                columnFilters[sheetId][colIndex].selected.delete(value);
+            }
+        }
+
+        // Apply column filter
+        window.applyColumnFilter = function(sheetId, colIndex) {
+            const table = document.getElementById(`table-${sheetId}`);
+            const rows = table.querySelectorAll('tbody tr');
+            const selectedValues = columnFilters[sheetId][colIndex].selected;
+
+            rows.forEach(row => {
+                const cell = row.cells[colIndex];
+                const cellValue = cell ? cell.textContent.trim() : '';
+                
+                // Check all column filters
+                let showRow = true;
+                Object.keys(columnFilters[sheetId]).forEach(idx => {
+                    const checkCell = row.cells[idx];
+                    const checkValue = checkCell ? checkCell.textContent.trim() : '';
+                    if (!columnFilters[sheetId][idx].selected.has(checkValue)) {
+                        showRow = false;
+                    }
+                });
+
+                row.style.display = showRow ? '' : 'none';
+            });
+
+            // Close filter dropdown
+            document.getElementById(`filter-${sheetId}-${colIndex}`).classList.remove('active');
+            showNotification('✅ Filter applied successfully', 'success');
+        }
+
+        // Clear column filter
+        window.clearColumnFilter = function(sheetId, colIndex) {
+            // Reset all checkboxes
+            const checkboxes = document.querySelectorAll(`#filter-options-${sheetId}-${colIndex} input[type="checkbox"]`);
+            checkboxes.forEach(cb => cb.checked = true);
+
+            // Reset selected values
+            columnFilters[sheetId][colIndex].selected = new Set(columnFilters[sheetId][colIndex].values);
+
+            // Show all rows
+            applyColumnFilter(sheetId, colIndex);
+            
+            showNotification('✅ Filter cleared', 'success');
         }
 
         // Setup search functionality for dynamic tabs
@@ -1324,7 +1562,7 @@
         }
 
         // Export to Excel functionality
-        function exportToExcel(sheetId) {
+        window.exportToExcel = function(sheetId) {
             const sheetData = excelData[sheetId];
             if (!sheetData || !sheetData.data || sheetData.data.length === 0) {
                 showNotification('❌ No data available to export', 'error');
@@ -1346,11 +1584,9 @@
         window.clearBrandInputs = clearBrandInputs;
         window.copyValueResult = copyValueResult;
         window.copyBrandResult = copyBrandResult;
-        window.exportToExcel = exportToExcel;
 
         // Setup VBA Tools Event Listeners
         function setupVBAToolsEventListeners() {
-            // Add event listeners for real-time character counting
             setTimeout(() => {
                 const valueInput = document.getElementById('valueInput');
                 const brandInput = document.getElementById('brandInput');
@@ -1405,7 +1641,7 @@
             if (ownerCounter) ownerCounter.textContent = `${ownerInput.value.length} characters`;
         }
 
-        // Value Abbreviation Algorithm (converted from VBA)
+        // Value Abbreviation Algorithm
         function processValueAbbreviation() {
             const input = document.getElementById('valueInput').value.trim();
             const resultDiv = document.getElementById('valueResult');
@@ -1442,7 +1678,7 @@
             }, 1500);
         }
 
-        // Brand Abbreviation Algorithm (converted from VBA)
+        // Brand Abbreviation Algorithm
         function processBrandAbbreviation() {
             const brandInput = document.getElementById('brandInput').value.trim();
             const ownerInput = document.getElementById('brandOwnerInput').value.trim();
@@ -1565,22 +1801,19 @@
             }, 3000);
         }
 
-        // Core abbreviation algorithms (converted from VBA)
+        // Core abbreviation algorithms
         function valueAbbreviateSentence(sentence) {
             const vowels = "AEIOU";
             const noiseWords = ["IT", "SO", "OR", "AN", "DO", "AT", "IF", "IS", "BY", "BE", "TO", "OF", "IN", "AS", "ON", "THE", "AND", "FOR", "ITS", "FROM", "THAT", "JUST", "THESE", "A"];
             
-            // Clean input
             sentence = sentence.replace(/\s+/g, ' ').trim();
             let originalSentence = sentence;
             sentence = sentence.toUpperCase();
             
-            // Handle special characters
             if (containsSpecialCharacters(sentence)) {
                 sentence = cleanSpecialCharacters(sentence);
             }
             
-            // Main processing loop
             while (sentence.length > 60) {
                 sentence = removeNoiseWords(sentence, noiseWords);
                 if (sentence.length <= 60) break;
@@ -1588,7 +1821,6 @@
                 let words = sentence.split(/\s+/);
                 let longWords = words.filter(word => word.length > 3);
                 
-                // Abbreviate words from right to left
                 for (let i = longWords.length - 1; i >= 0; i--) {
                     let word = longWords[i];
                     if (word.length > 3) {
@@ -1609,7 +1841,6 @@
         }
 
         function processBrandAndOwner(brand, brandOwner) {
-            // Remove newlines and clean
             brand = brand.replace(/\n/g, '').trim();
             brandOwner = brandOwner.replace(/\n/g, '').trim();
             
@@ -1622,7 +1853,6 @@
         function abbreviateSentence(sentence) {
             let result = sentence;
             
-            // Replace default company words
             const replacements = [
                 ['LIMITED LIABILITY COMPANY', 'LLC'],
                 ['LIMITED', 'LTD'],
@@ -1638,7 +1868,6 @@
             
             if (result.length <= 40) return result;
             
-            // Further abbreviation if needed
             let words = result.split(/\s+/);
             for (let i = words.length - 1; i >= 0; i--) {
                 if (words[i].length > 3) {
@@ -1661,7 +1890,6 @@
             let result = word;
             let preserved = "";
             
-            // Preserve initial vowels
             if (vowels.includes(result.charAt(0).toUpperCase())) {
                 if (vowels.includes(result.charAt(1).toUpperCase())) {
                     preserved = result.substring(0, 2);
@@ -1672,15 +1900,10 @@
                 }
             }
             
-            // Remove repeated letters
             result = result.replace(/(.)\1+/g, '$1');
-            
-            // Remove vowels
             result = result.replace(/[aeiouAEIOU]/g, '');
-            
             result = preserved + result;
             
-            // Limit to 5 characters
             return result.length > 5 ? result.substring(0, 5) : result;
         }
 
@@ -1726,25 +1949,19 @@
             return abbWords.join(' ');
         }
 
-        // Initialize welcome screen
         function initializeWelcomeScreen() {
-            // VBA Tools tab is already in the HTML, so no need to regenerate
             console.log('Dashboard initialized with VBA Tools available');
         }
 
-        // Force setup character counters after DOM is fully loaded
         setTimeout(() => {
-            // Value Input character counter
             const valueInput = document.getElementById('valueInput');
             if (valueInput) {
                 valueInput.addEventListener('input', function() {
                     updateCharCounter('valueInput', 'valueInputCounter');
                 });
-                // Trigger initial count
                 updateCharCounter('valueInput', 'valueInputCounter');
             }
 
-            // Brand inputs character counters
             const brandInput = document.getElementById('brandInput');
             const brandOwnerInput = document.getElementById('brandOwnerInput');
             
@@ -1760,17 +1977,14 @@
                 });
             }
             
-            // Trigger initial count for brand inputs
             updateBrandCharCounter();
         }, 2000);
 
-        // Also add manual trigger when VBA tab is shown
         const originalShowTab = window.showTab;
         window.showTab = function(tabName) {
             originalShowTab(tabName);
             
             if (tabName === 'vba-tools') {
-                // Re-setup character counters when VBA tab is shown
                 setTimeout(() => {
                     updateBrandCharCounter();
                     updateCharCounter('valueInput', 'valueInputCounter');
@@ -1779,11 +1993,4 @@
         };
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
